@@ -3,7 +3,7 @@ import TimerCard from "@/components/TimerCard";
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-zinc-950 px-4 py-6 text-white sm:px-8 sm:py-10">
-      <main className="mx-auto max-w-5xl space-y-8">
+      <main className="mx-auto max-w-5xl space-y-8 sm:space-y-10">
         <header className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">혼테일 타이머</h1>
@@ -14,13 +14,13 @@ export default function Home() {
           </div>
         </header>
 
-        <section aria-label="heads" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <section aria-label="heads" className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <TimerCard label="좌" hotkey="1" durationSeconds={43} autoRepeat={false} accentClassName="from-rose-500 to-orange-500" />
           <TimerCard label="중" hotkey="2" durationSeconds={43} autoRepeat={false} accentClassName="from-amber-500 to-yellow-500" />
           <TimerCard label="우" hotkey="3" durationSeconds={43} autoRepeat={false} accentClassName="from-emerald-500 to-teal-500" />
         </section>
 
-        <section aria-label="dispels" className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <section aria-label="dispels" className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <TimerCard label="버프해제 50%" hotkey="5" durationSeconds={5 * 60 + 1} autoRepeat accentClassName="from-sky-500 to-indigo-500" />
           <TimerCard label="버프해제 30%" hotkey="6" durationSeconds={3 * 60 + 1} autoRepeat accentClassName="from-fuchsia-500 to-pink-600" />
         </section>

@@ -107,31 +107,31 @@ export default function TimerCard({
     <button
       type="button"
       onClick={toggle}
-      className={`relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 shadow-sm backdrop-blur transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 dark:border-white/10`}
+      className={`relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-7 md:p-8 shadow-sm backdrop-blur transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 dark:border-white/10 min-h-28 sm:min-h-32`}
     >
       <div className="absolute inset-0 opacity-30">
         <div
-          className={`pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accentClassName}`}
+          className={`pointer-events-none absolute inset-x-0 top-0 h-2 bg-gradient-to-r ${accentClassName}`}
           style={{ width: `${Math.max(0, Math.min(100, progress * 100))}%` }}
         />
       </div>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-md bg-black/70 px-2 text-sm font-semibold text-white shadow-sm">
+        <div className="flex items-center gap-4">
+          <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-md bg-black/70 px-3 text-base sm:text-lg font-semibold text-white shadow-sm">
             {hotkey}
           </span>
           <div className="text-left">
-            <div className="text-sm font-medium text-white/80">{label}</div>
-            <div className="text-xs text-white/60">
+            <div className="text-base sm:text-lg font-semibold text-white/85">{label}</div>
+            <div className="text-sm text-white/60">
               {autoRepeat ? "자동 반복" : "단발성"}
             </div>
           </div>
         </div>
-        <div className="text-3xl font-bold tabular-nums text-white">
+        <div className="text-5xl sm:text-6xl font-extrabold tabular-nums text-white">
           {formatTime(displayTime)}
         </div>
       </div>
-      <div className="mt-3 text-xs uppercase tracking-wide text-white/60">
+      <div className="mt-4 text-sm uppercase tracking-wide text-white/60">
         {isRunning ? "진행 중 (클릭 또는 단축키로 정지)" : "대기 중 (클릭 또는 단축키로 시작)"}
       </div>
     </button>
