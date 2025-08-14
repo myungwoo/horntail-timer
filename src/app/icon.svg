@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0b1020"/>
+    </linearGradient>
+    <linearGradient id="hornL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="hornR" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="256" height="256" rx="56" fill="url(#bg)"/>
+
+  <!-- Horns -->
+  <path d="M72 70 L108 64 L96 98 Z" fill="url(#hornL)"/>
+  <path d="M184 70 L148 64 L160 98 Z" fill="url(#hornR)"/>
+
+  <!-- Clock base -->
+  <circle cx="128" cy="140" r="64" fill="#0b1222" stroke="#e5e7eb" stroke-width="6"/>
+  <circle cx="128" cy="140" r="56" fill="none" stroke="#94a3b8" stroke-width="2" opacity="0.35"/>
+
+  <!-- Ticks -->
+  <g stroke="#e5e7eb" stroke-width="4" stroke-linecap="round">
+    <line x1="128" y1="76" x2="128" y2="88"/>
+    <line x1="128" y1="192" x2="128" y2="204"/>
+    <line x1="64" y1="140" x2="76" y2="140"/>
+    <line x1="180" y1="140" x2="192" y2="140"/>
+  </g>
+
+  <!-- Hands -->
+  <g stroke="#ffffff" stroke-linecap="round">
+    <line x1="128" y1="140" x2="128" y2="104" stroke-width="6"/>
+    <line x1="128" y1="140" x2="160" y2="140" stroke-width="6"/>
+    <circle cx="128" cy="140" r="5" fill="#ffffff"/>
+  </g>
+
+  <!-- Accent progress arc (static visual) -->
+  <path d="M128 76 A64 64 0 0 1 188 108" fill="none" stroke="#60a5fa" stroke-width="6" stroke-linecap="round"/>
+</svg>
+
+

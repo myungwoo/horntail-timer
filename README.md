@@ -10,6 +10,7 @@ Next.js(App Router)와 Tailwind CSS로 제작되었습니다.
 - **임박 경고(깜빡임)**: 머리 타이머는 남은 **3초**, 버프해제는 남은 **10초**부터 텍스트/배경이 부드럽게 깜빡이며 강조됩니다.
 - **타이머별 경고 배경색**: 각 카드마다 다른 경고색(로즈/앰버/에메랄드/스카이/퓨시아)으로 구분.
 - **반응형 UI**: 데스크톱/모바일에서 모두 사용하기 편한 레이아웃. iPad 등 터치 환경에서 눌리기 쉽게 카드/텍스트 크기 확대.
+- **PWA 지원(아이콘/홈 화면 추가)**: 웹앱 매니페스트를 제공하여 홈 화면에 설치 가능.
 
 ### 🖥 화면 구성
 - 상단: 좌, 중, 우 머리 타이머(43초)
@@ -82,6 +83,27 @@ npm run start
 npm run build
 # out/ 디렉터리에 정적 파일 생성
 ```
+
+---
+
+## 📱 PWA / 아이콘
+
+### 아이콘 소스와 생성
+- 기본 소스: `src/app/icon.svg`
+- 생성 스크립트: `npm run icons`
+  - 생성 결과:
+    - 파비콘: `src/app/favicon.ico`
+    - 애플 터치 아이콘: `public/apple-touch-icon.png` (180x180)
+    - PNG 아이콘: `public/icon-16.png`, `icon-32.png`, `icon-48.png`, `icon-64.png`, `icon-128.png`, `icon-180.png`, `icon-192.png`, `icon-256.png`, `icon-512.png`
+
+### 웹앱 매니페스트
+- 파일: `src/app/manifest.ts` → `/manifest.webmanifest`로 제공
+- 아이콘 참조: 192x192, 512x512, 180x180(apple)
+- 표시 모드: `standalone`, 색상: 다크 톤
+
+### HTML head 반영 여부(추가 코드 필요?)
+- 이미 `src/app/layout.tsx`의 메타데이터에 `icons`와 `manifest`가 설정되어 있어, **별도의 추가 코드 수정 없이** 파비콘/아이콘/매니페스트가 적용됩니다.
+- `src/app/icon.svg`는 Next.js App Router에서 자동으로 아이콘으로도 인식됩니다.
 
 ---
 
