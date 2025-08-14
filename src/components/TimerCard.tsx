@@ -8,6 +8,8 @@ type TimerCardProps = {
   durationSeconds: number;
   autoRepeat?: boolean;
   accentClassName?: string; // Tailwind classes for accent color
+  warningSeconds?: number; // when remaining time <= this, show visual warning
+  warningBgClassName?: string; // tailwind bg color for warning blink overlay
 };
 
 function formatTime(totalSeconds: number): string {
@@ -25,6 +27,8 @@ export default function TimerCard({
   durationSeconds,
   autoRepeat = false,
   accentClassName = "from-indigo-500 to-blue-600",
+  warningSeconds,
+  warningBgClassName = "bg-red-500",
 }: TimerCardProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(durationSeconds);
@@ -102,12 +106,13 @@ export default function TimerCard({
   }, []);
 
   const displayTime = isRunning ? timeLeft : durationSeconds;
+  const isWarning = isRunning && warningSeconds !== undefined && timeLeft <= warningSeconds;
 
   return (
     <button
       type="button"
       onClick={toggle}
-      className={`relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-7 md:p-8 shadow-sm backdrop-blur transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 dark:border-white/10 min-h-28 sm:min-h-32`}
+      className={`relative w-full overflow-hidden rounded-2xl border ${isWarning ? "border-red-400/70" : "border-white/10"} ${isWarning ? "bg-red-500/10" : "bg-white/5"} p-6 sm:p-7 md:p-8 shadow-sm backdrop-blur transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 ${isWarning ? "focus:ring-red-400/60" : "focus:ring-white/30"} dark:border-white/10 min-h-28 sm:min-h-32`}
     >
       <div className="absolute inset-0 opacity-30">
         <div
@@ -115,7 +120,10 @@ export default function TimerCard({
           style={{ width: `${Math.max(0, Math.min(100, progress * 100))}%` }}
         />
       </div>
-      <div className="flex items-center justify-between">
+      {isWarning && (
+        <div className={`pointer-events-none absolute inset-0 ${warningBgClassName} warning-blink-bg`} />
+      )}
+      <div className={`flex items-center justify-between ${isWarning ? "warning-blink" : ""}`}>
         <div className="flex items-center gap-4">
           <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-md bg-black/70 px-3 text-base sm:text-lg font-semibold text-white shadow-sm">
             {hotkey}

@@ -24,3 +24,33 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Warning blink for timers nearing completion */
+@keyframes warning-blink {
+  0% { opacity: 1; }
+  100% { opacity: 0.35; }
+}
+
+.warning-blink {
+  animation: warning-blink 0.2s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+/* Softer background blink overlay */
+@keyframes warning-blink-bg {
+  0% { opacity: 0; }
+  100% { opacity: 0.5; }
+}
+
+.warning-blink-bg {
+  animation: warning-blink-bg 0.3s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .warning-blink,
+  .warning-blink-bg {
+    animation: none !important;
+  }
+}
+
