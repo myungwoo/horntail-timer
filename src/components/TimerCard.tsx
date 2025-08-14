@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type TimerCardProps = {
   label: string;
@@ -32,46 +32,74 @@ export default function TimerCard({
 }: TimerCardProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(durationSeconds);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [progress, setProgress] = useState<number>(0);
+  const timerRef = useRef<number | null>(null);
+  const baseStartMsRef = useRef<number | null>(null);
+  const endAtMsRef = useRef<number | null>(null);
 
-  const progress = useMemo(() => {
-    const denominator = durationSeconds || 1;
-    const numerator = isRunning ? timeLeft : durationSeconds;
-    return 1 - Math.min(1, Math.max(0, numerator / denominator));
-  }, [isRunning, timeLeft, durationSeconds]);
+  const nowMs = () => (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now());
+  const durationMs = durationSeconds * 1000;
+
+  const updateFromClock = useCallback(() => {
+    const startedAt = baseStartMsRef.current;
+    if (!startedAt) return;
+    const now = nowMs();
+    if (autoRepeat) {
+      const elapsedMs = Math.max(0, now - startedAt);
+      const cycleProgress = (elapsedMs % durationMs) / durationMs;
+      const remainingMsInCycle = durationMs - (elapsedMs % durationMs);
+      const nextTimeLeft = Math.ceil(remainingMsInCycle / 1000);
+      setTimeLeft(nextTimeLeft);
+      setProgress(cycleProgress);
+    } else {
+      const endAt = endAtMsRef.current ?? startedAt + durationMs;
+      const remainingMs = Math.max(0, endAt - now);
+      const nextTimeLeft = Math.ceil(remainingMs / 1000);
+      setTimeLeft(nextTimeLeft);
+      const elapsedMs = Math.min(durationMs, Math.max(0, durationMs - remainingMs));
+      setProgress(elapsedMs / durationMs);
+      if (remainingMs <= 0) {
+        // stop precisely without drift
+        if (timerRef.current) {
+          window.clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        setIsRunning(false);
+        setTimeLeft(0);
+      }
+    }
+  }, [autoRepeat, durationMs]);
 
   const stop = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
     }
+    baseStartMsRef.current = null;
+    endAtMsRef.current = null;
     setIsRunning(false);
     setTimeLeft(durationSeconds);
+    setProgress(0);
   }, [durationSeconds]);
 
   const start = useCallback(() => {
     if (isRunning) return;
+    const started = nowMs();
+    baseStartMsRef.current = started;
+    endAtMsRef.current = autoRepeat ? null : started + durationMs;
     setIsRunning(true);
+    // initial sync
     setTimeLeft(durationSeconds);
-    intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        const next = prev - 1;
-        if (next <= 0) {
-          if (autoRepeat) {
-            return durationSeconds; // loop
-          }
-          // complete once
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-          setIsRunning(false);
-          return 0;
-        }
-        return next;
-      });
-    }, 1000);
-  }, [autoRepeat, durationSeconds, isRunning]);
+    setProgress(0);
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    // tick ~5 times/sec to keep UI smooth but compute from clock to avoid drift
+    timerRef.current = window.setInterval(updateFromClock, 100);
+    // also do an immediate update for responsiveness
+    updateFromClock();
+  }, [durationMs, durationSeconds, isRunning, updateFromClock, autoRepeat]);
 
   const toggle = useCallback(() => {
     if (isRunning) {
@@ -101,7 +129,7 @@ export default function TimerCard({
 
   useEffect(() => {
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timerRef.current) window.clearInterval(timerRef.current);
     };
   }, []);
 
