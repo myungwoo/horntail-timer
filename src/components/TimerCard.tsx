@@ -82,32 +82,22 @@ export default function TimerCard({
     setProgress(0);
   }, [durationSeconds]);
 
-  const start = useCallback(() => {
-    if (isRunning) return;
-    const started = nowMs();
-    baseStartMsRef.current = started;
-    endAtMsRef.current = autoRepeat ? null : started + durationMs;
-    setIsRunning(true);
-    // initial sync
-    setTimeLeft(durationSeconds);
-    setProgress(0);
+
+  const restartOrStart = useCallback(() => {
+    // Restart from scratch regardless of current state
     if (timerRef.current) {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    // tick ~5 times/sec to keep UI smooth but compute from clock to avoid drift
+    const started = nowMs();
+    baseStartMsRef.current = started;
+    endAtMsRef.current = autoRepeat ? null : started + durationMs;
+    setIsRunning(true);
+    setTimeLeft(durationSeconds);
+    setProgress(0);
     timerRef.current = window.setInterval(updateFromClock, 100);
-    // also do an immediate update for responsiveness
     updateFromClock();
-  }, [durationMs, durationSeconds, isRunning, updateFromClock, autoRepeat]);
-
-  const toggle = useCallback(() => {
-    if (isRunning) {
-      stop();
-    } else {
-      start();
-    }
-  }, [isRunning, start, stop]);
+  }, [autoRepeat, durationMs, durationSeconds, updateFromClock]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -120,12 +110,18 @@ export default function TimerCard({
       const codeMatch = e.code === `Digit${hotkey}`; // works for numbers on most layouts
       if (keyMatch || codeMatch) {
         e.preventDefault();
-        toggle();
+        if (e.shiftKey || e.metaKey) {
+          // Stop with modifier for power users
+          stop();
+        } else {
+          // Default: start or restart
+          restartOrStart();
+        }
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [hotkey, toggle]);
+  }, [hotkey, restartOrStart, stop]);
 
   useEffect(() => {
     return () => {
@@ -136,10 +132,37 @@ export default function TimerCard({
   const displayTime = isRunning ? timeLeft : durationSeconds;
   const isWarning = isRunning && warningSeconds !== undefined && timeLeft <= warningSeconds;
 
+  // Long-press to stop (touch-friendly)
+  const longPressTimerRef = useRef<number | null>(null);
+  const longPressActivatedRef = useRef<boolean>(false);
+  const handlePointerDown = useCallback(() => {
+    if (longPressTimerRef.current) window.clearTimeout(longPressTimerRef.current);
+    longPressActivatedRef.current = false;
+    longPressTimerRef.current = window.setTimeout(() => {
+      longPressActivatedRef.current = true;
+      stop();
+    }, 600);
+  }, [stop]);
+  const clearLongPress = useCallback(() => {
+    if (longPressTimerRef.current) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
+
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={() => {
+        if (longPressActivatedRef.current) {
+          longPressActivatedRef.current = false;
+          return;
+        }
+        restartOrStart();
+      }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={clearLongPress}
+      onPointerLeave={clearLongPress}
       className={`relative w-full overflow-hidden rounded-2xl border ${isWarning ? "border-red-400/70" : "border-white/10"} ${isWarning ? "bg-red-500/10" : "bg-white/5"} p-6 sm:p-7 md:p-8 shadow-sm backdrop-blur transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 ${isWarning ? "focus:ring-red-400/60" : "focus:ring-white/30"} dark:border-white/10 min-h-28 sm:min-h-32`}
     >
       <div className="absolute inset-0 opacity-30">
@@ -168,7 +191,7 @@ export default function TimerCard({
         </div>
       </div>
       <div className="mt-4 text-sm uppercase tracking-wide text-white/60">
-        {isRunning ? "진행 중 (클릭 또는 단축키로 정지)" : "대기 중 (클릭 또는 단축키로 시작)"}
+        {isRunning ? "진행 중 (클릭: 재시작 · Shift+단축키/길게누르기: 정지)" : "대기 중 (클릭 또는 단축키로 시작)"}
       </div>
     </button>
   );
