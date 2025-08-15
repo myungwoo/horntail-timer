@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ensureAudioContext, getPatternForProfile, playPattern, type SoundProfile } from "@/lib/audio";
 
 type TimerCardProps = {
   label: string;
@@ -10,6 +11,7 @@ type TimerCardProps = {
   accentClassName?: string; // Tailwind classes for accent color
   warningSeconds?: number; // when remaining time <= this, show visual warning
   warningBgClassName?: string; // tailwind bg color for warning blink overlay
+  soundProfile?: SoundProfile; // which sound to play when entering warning
 };
 
 function formatTime(totalSeconds: number): string {
@@ -29,6 +31,7 @@ export default function TimerCard({
   accentClassName = "from-indigo-500 to-blue-600",
   warningSeconds,
   warningBgClassName = "bg-red-500",
+  soundProfile,
 }: TimerCardProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(durationSeconds);
@@ -131,6 +134,38 @@ export default function TimerCard({
 
   const displayTime = isRunning ? timeLeft : durationSeconds;
   const isWarning = isRunning && warningSeconds !== undefined && timeLeft <= warningSeconds;
+
+  // Play alert sound repeatedly while in warning state
+  const wasWarningRef = useRef<boolean>(false);
+  const warningSoundIntervalRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!isRunning || warningSeconds === undefined) {
+      wasWarningRef.current = false;
+      if (warningSoundIntervalRef.current) {
+        window.clearInterval(warningSoundIntervalRef.current);
+        warningSoundIntervalRef.current = null;
+      }
+      return;
+    }
+    if (timeLeft <= warningSeconds) {
+      ensureAudioContext();
+      // Start fast repeating beeps while in warning range
+      if (!warningSoundIntervalRef.current) {
+        const play = () => {
+          if (!soundProfile) return;
+          playPattern(getPatternForProfile(soundProfile), { volume: 0.09 });
+        };
+        play();
+        warningSoundIntervalRef.current = window.setInterval(play, 350);
+      }
+    } else {
+      wasWarningRef.current = false;
+      if (warningSoundIntervalRef.current) {
+        window.clearInterval(warningSoundIntervalRef.current);
+        warningSoundIntervalRef.current = null;
+      }
+    }
+  }, [isRunning, timeLeft, warningSeconds, soundProfile]);
 
   // Long-press to stop (touch-friendly)
   const longPressTimerRef = useRef<number | null>(null);
