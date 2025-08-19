@@ -115,9 +115,11 @@ export default function TimerCard({
         e.preventDefault();
         if (e.shiftKey || e.metaKey) {
           // Stop with modifier for power users
+          ensureAudioContext();
           stop();
         } else {
           // Default: start or restart
+          ensureAudioContext();
           restartOrStart();
         }
       }
@@ -193,6 +195,7 @@ export default function TimerCard({
           longPressActivatedRef.current = false;
           return;
         }
+        ensureAudioContext();
         restartOrStart();
       }}
       onPointerDown={handlePointerDown}
