@@ -216,7 +216,7 @@ export default function TimerCard({
       <div className={`flex items-center justify-between ${isWarning ? "warning-blink" : ""}`}>
         <div className="flex items-center gap-4">
           <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-md bg-black/70 px-3 text-base sm:text-lg font-semibold text-white shadow-sm">
-            {hotkey}
+            {hotkey.toUpperCase()}
           </span>
           <div className="text-left">
             <div className="text-base sm:text-lg font-semibold text-white/85">{label}</div>
