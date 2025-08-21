@@ -10,7 +10,7 @@ export default function Home() {
             <p className="text-sm text-white/70">좌/중/우 머리 타이머(43초) + 버프해제 50%/30%</p>
           </div>
           <div className="text-xs text-white/60">
-            단축키: 좌(1) · 중(2) · 우(3) · 50%(5) · 30%(6)
+            단축키: 좌(1) · 중(2) · 우(3) · 50%(Q) · 30%(W)
           </div>
         </header>
 
