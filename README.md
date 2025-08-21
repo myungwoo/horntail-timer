@@ -22,7 +22,7 @@ Next.js(App Router)와 Tailwind CSS로 제작되었습니다.
 
 ### ⌨️ 단축키
 - 좌: `1`, 중: `2`, 우: `3`
-- 버프해제 50%: `5`, 버프해제 30%: `6`
+- 버프해제 50%: `q`, 버프해제 30%: `w`
 
 ---
 
@@ -62,7 +62,7 @@ npm run start
 
 ### 경고/시각 효과 설정
 - 경고 임계값: `warningSeconds` prop으로 설정
-  - 머리 타이머: 5초, 버프해제 타이머: 10초
+  - 머리 타이머: 3초, 버프해제 타이머: 10초
 - 경고 배경색: `warningBgClassName` prop으로 Tailwind 색상 지정 (예: `bg-rose-500`)
 - 애니메이션 타이밍: `src/app/globals.css`의 `.warning-blink`, `.warning-blink-bg` 에서 조절
   - 현재 기본값: 텍스트 0.2s, 배경 0.3s, `ease-in-out`, `alternate`

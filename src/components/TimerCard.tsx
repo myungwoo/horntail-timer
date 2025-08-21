@@ -109,8 +109,9 @@ export default function TimerCard({
       if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) {
         return;
       }
-      const keyMatch = e.key === hotkey;
-      const codeMatch = e.code === `Digit${hotkey}`; // works for numbers on most layouts
+      const normalizedHotkey = hotkey.toLowerCase();
+      const keyMatch = (e.key || "").toLowerCase() === normalizedHotkey;
+      const codeMatch = e.code === `Digit${hotkey}` || e.code === `Key${hotkey.toUpperCase()}`;
       if (keyMatch || codeMatch) {
         e.preventDefault();
         if (e.shiftKey || e.metaKey) {
