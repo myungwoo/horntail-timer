@@ -58,7 +58,7 @@ export function playPattern(steps: ToneStep[], options?: { volume?: number }): v
   }
 }
 
-export type SoundProfile = "left" | "middle" | "right" | "dispel50" | "dispel30";
+export type SoundProfile = "left" | "middle" | "right" | "dispel50" | "dispel30" | "guest";
 
 export function getPatternForProfile(profile: SoundProfile): ToneStep[] {
   switch (profile) {
@@ -77,6 +77,11 @@ export function getPatternForProfile(profile: SoundProfile): ToneStep[] {
       return [
         { frequency: 900, durationMs: 110 },
         { frequency: 600, durationMs: 110, gapMs: 70 },
+      ];
+    case "guest":
+      return [
+        { frequency: 780, durationMs: 140 },
+        { frequency: 780, durationMs: 140, gapMs: 90 },
       ];
     default:
       return [{ frequency: 800, durationMs: 120 }];

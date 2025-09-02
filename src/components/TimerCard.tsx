@@ -112,7 +112,9 @@ export default function TimerCard({
       const normalizedHotkey = hotkey.toLowerCase();
       const keyMatch = (e.key || "").toLowerCase() === normalizedHotkey;
       const codeMatch = e.code === `Digit${hotkey}` || e.code === `Key${hotkey.toUpperCase()}`;
-      if (keyMatch || codeMatch) {
+      const isSpaceHotkey = normalizedHotkey === "space" || normalizedHotkey === " ";
+      const spaceMatch = e.code === "Space" || (e.key === " ") || ((e.key || "").toLowerCase() === "spacebar");
+      if (keyMatch || codeMatch || (isSpaceHotkey && spaceMatch)) {
         e.preventDefault();
         if (e.shiftKey || e.metaKey) {
           // Stop with modifier for power users
