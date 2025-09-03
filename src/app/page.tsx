@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import TimerCard from "@/components/TimerCard";
+import ResurrectionNamesModal from "@/components/ResurrectionNamesModal";
 
 type TabKey = "core" | "res" | "guest";
 
 export default function Home() {
   const [tab, setTab] = useState<TabKey>("core");
+  const [resNames, setResNames] = useState<string[]>(["", "", "", "", ""
+  ]);
+  const [showResModal, setShowResModal] = useState(false);
   // Tab keyboard shortcuts: ArrowLeft/ArrowRight to move between tabs
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -24,6 +28,27 @@ export default function Home() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Load and persist resurrection names
+  useEffect(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem("resNames") : null;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length === 5) {
+          setResNames(parsed.map((v) => (typeof v === "string" ? v : "")));
+        }
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("resNames", JSON.stringify(resNames));
+      }
+    } catch {}
+  }, [resNames]);
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-zinc-950 px-4 py-6 text-white sm:px-8 sm:py-10">
       <main className="mx-auto max-w-6xl space-y-6 sm:space-y-8">
@@ -62,10 +87,21 @@ export default function Home() {
           </div>
           <div className="text-xs text-white/60">
             {tab === "core" && "단축키: 좌(1) · 중(2) · 우(3) · 50%(Q) · 30%(W)"}
-            {tab === "res" && "단축키: 1~5 리저 → Z · X · C · V · B"}
+            {tab === "res" && "단축키: 1~5 리저 → A · S · D · Z · X"}
             {tab === "guest" && "단축키: 손님 마을 → Space"}
             <span className="ml-2 text-white/40">(탭 이동: ← →)</span>
           </div>
+          {tab === "res" && (
+            <div className="flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setShowResModal(true)}
+                className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10"
+              >
+                리저 이름 설정
+              </button>
+            </div>
+          )}
         </header>
 
         <section aria-label="heads" className={`${tab === "core" ? "grid" : "hidden"} grid-cols-1 gap-5 sm:grid-cols-3`}>
@@ -80,14 +116,14 @@ export default function Home() {
         </section>
 
         <section aria-label="resurrection-row-1" className={`${tab === "res" ? "grid" : "hidden"} grid-cols-1 gap-5 sm:grid-cols-3`}>
-          <TimerCard label="1번 리저" hotkey="z" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
-          <TimerCard label="2번 리저" hotkey="x" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
-          <TimerCard label="3번 리저" hotkey="c" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
+          <TimerCard label={resNames[0] || "1번 리저"} hotkey="a" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
+          <TimerCard label={resNames[1] || "2번 리저"} hotkey="s" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
+          <TimerCard label={resNames[2] || "3번 리저"} hotkey="d" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
         </section>
 
         <section aria-label="resurrection-row-2" className={`${tab === "res" ? "grid" : "hidden"} grid-cols-1 gap-5 sm:grid-cols-2`}>
-          <TimerCard label="4번 리저" hotkey="v" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
-          <TimerCard label="5번 리저" hotkey="b" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
+          <TimerCard label={resNames[3] || "4번 리저"} hotkey="z" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
+          <TimerCard label={resNames[4] || "5번 리저"} hotkey="x" durationSeconds={29 * 60 + 58} autoRepeat={false} accentClassName="from-purple-500 to-violet-600" warningSeconds={10} warningBgClassName="bg-purple-600" onWarningStart={() => { const el = document.querySelector('button[aria-label="tab-res"]'); if (el && tab !== "res") { el.classList.add('warning-blink'); setTimeout(() => el.classList.remove('warning-blink'), 2000); } }} />
         </section>
 
         <section aria-label="guest-town" className={`${tab === "guest" ? "grid" : "hidden"} grid-cols-1 gap-5`}>
@@ -95,6 +131,12 @@ export default function Home() {
         </section>
 
         <footer className="pt-4 text-center text-xs text-white/40">mapleland · horntail</footer>
+        <ResurrectionNamesModal
+          open={showResModal}
+          initialNames={resNames}
+          onClose={() => setShowResModal(false)}
+          onSubmit={(names) => { setResNames(names); setShowResModal(false); }}
+        />
       </main>
     </div>
   );
