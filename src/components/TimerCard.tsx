@@ -12,6 +12,9 @@ type TimerCardProps = {
   warningSeconds?: number; // when remaining time <= this, show visual warning
   warningBgClassName?: string; // tailwind bg color for warning blink overlay
   soundProfile?: SoundProfile; // which sound to play when entering warning
+  onWarningStart?: () => void;
+  onWarningEnd?: () => void;
+  showEndAt?: boolean; // show estimated end wall-clock time when running (single-run)
 };
 
 function formatTime(totalSeconds: number): string {
@@ -32,6 +35,9 @@ export default function TimerCard({
   warningSeconds,
   warningBgClassName = "bg-red-500",
   soundProfile,
+  onWarningStart,
+  onWarningEnd,
+  showEndAt,
 }: TimerCardProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(durationSeconds);
@@ -39,6 +45,8 @@ export default function TimerCard({
   const timerRef = useRef<number | null>(null);
   const baseStartMsRef = useRef<number | null>(null);
   const endAtMsRef = useRef<number | null>(null);
+  const startWallClockMsRef = useRef<number | null>(null);
+  const endWallClockMsRef = useRef<number | null>(null);
 
   const nowMs = () => (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now());
   const durationMs = durationSeconds * 1000;
@@ -80,6 +88,8 @@ export default function TimerCard({
     }
     baseStartMsRef.current = null;
     endAtMsRef.current = null;
+    startWallClockMsRef.current = null;
+    endWallClockMsRef.current = null;
     setIsRunning(false);
     setTimeLeft(durationSeconds);
     setProgress(0);
@@ -95,6 +105,8 @@ export default function TimerCard({
     const started = nowMs();
     baseStartMsRef.current = started;
     endAtMsRef.current = autoRepeat ? null : started + durationMs;
+    startWallClockMsRef.current = Date.now();
+    endWallClockMsRef.current = autoRepeat ? null : (startWallClockMsRef.current + durationMs);
     setIsRunning(true);
     setTimeLeft(durationSeconds);
     setProgress(0);
@@ -150,6 +162,7 @@ export default function TimerCard({
         window.clearInterval(warningSoundIntervalRef.current);
         warningSoundIntervalRef.current = null;
       }
+      if (onWarningEnd) onWarningEnd();
       return;
     }
     if (timeLeft <= warningSeconds) {
@@ -163,14 +176,19 @@ export default function TimerCard({
         play();
         warningSoundIntervalRef.current = window.setInterval(play, 350);
       }
+      if (!wasWarningRef.current) {
+        if (onWarningStart) onWarningStart();
+        wasWarningRef.current = true;
+      }
     } else {
       wasWarningRef.current = false;
       if (warningSoundIntervalRef.current) {
         window.clearInterval(warningSoundIntervalRef.current);
         warningSoundIntervalRef.current = null;
       }
+      if (onWarningEnd) onWarningEnd();
     }
-  }, [isRunning, timeLeft, warningSeconds, soundProfile]);
+  }, [isRunning, timeLeft, warningSeconds, soundProfile, onWarningStart, onWarningEnd]);
 
   // Long-press to stop (touch-friendly)
   const longPressTimerRef = useRef<number | null>(null);
@@ -234,6 +252,9 @@ export default function TimerCard({
       <div className="mt-4 text-sm uppercase tracking-wide text-white/60">
         {isRunning ? "진행 중 (클릭: 재시작 · Shift+단축키/길게누르기: 정지)" : "대기 중 (클릭 또는 단축키로 시작)"}
       </div>
+      {showEndAt && !autoRepeat && isRunning && endWallClockMsRef.current && (
+        <div className="mt-1 text-xs text-white/70">예상 종료: {new Date(endWallClockMsRef.current).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+      )}
     </button>
   );
 }
