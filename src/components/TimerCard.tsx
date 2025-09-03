@@ -253,7 +253,7 @@ export default function TimerCard({
         {isRunning ? "진행 중 (클릭: 재시작 · Shift+단축키/길게누르기: 정지)" : "대기 중 (클릭 또는 단축키로 시작)"}
       </div>
       {showEndAt && !autoRepeat && isRunning && endWallClockMsRef.current && (
-        <div className="mt-1 text-xs text-white/70">예상 종료: {new Date(endWallClockMsRef.current).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+        <div className="mt-1 text-xs text-white/70">예상 종료: {new Date(endWallClockMsRef.current).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}</div>
       )}
     </button>
   );
